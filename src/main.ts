@@ -1,8 +1,47 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { PORT } from './common/constant/app.constant';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
+import { ResponseSuccessInterceptor } from './common/interceptor/response-success.interceptor';
+import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
+import { ProtectGuard } from './modules/auth/protect/protect.guard';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, 
+      forbidNonWhitelisted: true, 
+    }),
+  ); 
+  const reflector = app.get(Reflector)
+  app.useGlobalGuards( new ProtectGuard(reflector))
+  app.useGlobalInterceptors( new LoggingInterceptor())
+  app.useGlobalInterceptors( new ResponseSuccessInterceptor())
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+      },
+      'AccessToken',
+    )
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, documentFactory, {
+    swaggerOptions: { persistAuthorization: true },
+  });
+  await app.listen(PORT ?? 3000);
 }
 bootstrap();
