@@ -7,9 +7,18 @@ import { BookingsModule } from './modules/bookings/bookings.module';
 import { PrismaService } from './modules/prisma/prisma.service';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { UserModule } from './modules/user/user.module';
+import { LocationModule } from './modules/location/location.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
-  imports: [AuthModule, UserModule, RoomsModule, BookingsModule],
+  imports: [
+    AuthModule,
+    UserModule,
+    RoomsModule,
+    BookingsModule,
+    LocationModule,
+    CommentModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService, ProtectStrategy],
 })
