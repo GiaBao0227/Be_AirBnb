@@ -60,6 +60,7 @@ model NguoiDung {
   deletedAt DateTime?         @db.Timestamp(0)
   createdAt DateTime          @default(now()) @db.Timestamp(0)
   updatedAt DateTime          @default(now()) @db.Timestamp(0)
+  avatar    String?           @db.VarChar(255)
   BinhLuan  BinhLuan[]
   DatPhong  DatPhong[]
 }
