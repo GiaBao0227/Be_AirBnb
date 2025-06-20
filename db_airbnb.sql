@@ -28,6 +28,7 @@ CREATE TABLE NguoiDung (
   birth_day DATE,
   gender ENUM('male','female','other'),
   role VARCHAR(50) DEFAULT 'guest', -- Có thể là 'user', 'admin', etc.
+  avatar varchar(255) DEFAULT NULL,
 
   -- Audit fields
   deletedBy INT NOT NULL        DEFAULT 0,
