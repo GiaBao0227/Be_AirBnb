@@ -1,22 +1,64 @@
-
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import chalk from 'chalk';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const req = context.switchToHttp().getRequest();
     const res = context.switchToHttp().getResponse();
-
     const method = req.method;
-    const url = req.originalUrl | req.url;
+    const url = req.originalUrl || req.url;
     const now = Date.now();
-    
-    return next
-      .handle()
-      .pipe(
-        tap(() => console.log(`${method} ${url} ${Date.now() - now}ms`)),
-      );
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace('T', ' ')
+      .substring(0, 19);
+
+    const methodColor = this.getMethodColor(method);
+    const statusCode = res.statusCode;
+
+    return next.handle().pipe(
+      tap(() => {
+        const responseTime = Date.now() - now;
+        const statusColor = this.getStatusColor(statusCode);
+
+        console.log(
+          `${chalk.gray(`[${timestamp}]`)}` +
+            `${methodColor(`${method.padStart(5).padEnd(6)}`)} ${chalk.white(url)} ` +
+            `${statusColor(`${statusCode}`)} ${chalk.yellow(`${responseTime}ms`)}`,
+        );
+      }),
+    );
+  }
+
+  private getMethodColor(method: string): (text: string) => string {
+    switch (method.toUpperCase()) {
+      case 'GET':
+        return chalk.green;
+      case 'POST':
+        return chalk.blue;
+      case 'PUT':
+        return chalk.yellow;
+      case 'DELETE':
+        return chalk.red;
+      default:
+        return chalk.white;
+    }
+  }
+
+  private getStatusColor(statusCode: number): (text: string) => string {
+    if (statusCode >= 200 && statusCode < 300) return chalk.green;
+    if (statusCode >= 300 && statusCode < 400) return chalk.cyan;
+    if (statusCode >= 400 && statusCode < 500) return chalk.red;
+    if (statusCode >= 500) return chalk.red.bold;
+    return chalk.white;
   }
 }
