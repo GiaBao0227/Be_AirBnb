@@ -13,6 +13,10 @@ CREATE TABLE ViTri (
   updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+INSERT INTO ViTri (ten_vi_tri, tinh_thanh, quoc_gia, hinh_anh)
+VALUES 
+('Khu phố cổ', 'Hà Nội', 'Việt Nam', 'https://example.com/hanoi.jpg'),
+('Bãi biển Nha Trang', 'Khánh Hòa', 'Việt Nam', 'https://example.com/nhatrang.jpg');
 
 -- 2. Bảng Người Dùng
 CREATE TABLE NguoiDung (
@@ -24,6 +28,7 @@ CREATE TABLE NguoiDung (
   birth_day DATE,
   gender ENUM('male','female','other'),
   role VARCHAR(50) DEFAULT 'guest', -- Có thể là 'user', 'admin', etc.
+  avatar varchar(255) DEFAULT NULL,
 
   -- Audit fields
   deletedBy INT NOT NULL        DEFAULT 0,
@@ -32,6 +37,11 @@ CREATE TABLE NguoiDung (
   createdAt TIMESTAMP NOT NULL   DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP NOT NULL   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+INSERT INTO NguoiDung (name, email, pass_word, phone, birth_day, gender, role)
+VALUES 
+('Nguyen Van A', 'a.nguyen@example.com', '$2b$10$sLFPKjIZwdVBRO/ZhnZH0ejPRk2EACsKL.tW0EEbNbkWtXKhGfawK', '0901234567', '1990-05-15', 'male', 'user'),
+('Tran Thi B', 'b.tran@example.com', '$2b$10$sLFPKjIZwdVBRO/ZhnZH0ejPRk2EACsKL.tW0EEbNbkWtXKhGfawK', '0912345678', '1995-10-20', 'female', 'user');
 
 -- 3. Bảng Phòng
 CREATE TABLE Phong (
@@ -68,6 +78,11 @@ CREATE TABLE Phong (
   updatedAt TIMESTAMP NOT NULL   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+INSERT INTO Phong (ten_phong, khach, phong_ngu, giuong, phong_tam, mo_ta, gia_tien, may_giat, ban_la, tivi, dieu_hoa, wifi, bep, do_xe, ho_boi, ban_ui, hinh_anh, vi_tri_id)
+VALUES 
+('Phòng gia đình Hà Nội', 4, 2, 2, 1, 'Phòng rộng rãi, view đẹp', 1500000.00, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, 'https://example.com/room1.jpg', 1),
+('Biệt thự biển Nha Trang', 6, 3, 3, 2, 'Gần biển, tiện nghi cao cấp', 3000000.00, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, 'https://example.com/room2.jpg', 2);
+
 -- 4. Bảng Đặt Phòng
 CREATE TABLE DatPhong (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -94,6 +109,11 @@ CREATE TABLE DatPhong (
   updatedAt TIMESTAMP NOT NULL   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+INSERT INTO DatPhong (ma_phong, ngay_den, ngay_di, so_luong_khach, ma_nguoi_dat)
+VALUES 
+(1, '2025-06-20 14:00:00', '2025-06-25 12:00:00', 4, 1),
+(2, '2025-07-01 15:00:00', '2025-07-05 11:00:00', 6, 2);
+
 -- 5. Bảng Bình Luận
 CREATE TABLE BinhLuan (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -119,3 +139,8 @@ CREATE TABLE BinhLuan (
   createdAt TIMESTAMP NOT NULL   DEFAULT CURRENT_TIMESTAMP,
   updatedAt TIMESTAMP NOT NULL   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+INSERT INTO BinhLuan (ma_phong, ma_nguoi_binh_luan, ngay_binh_luan, noi_dung, sao_binh_luan)
+VALUES 
+(1, 1, '2025-06-18 20:00:00', 'Phòng sạch sẽ, view đẹp!', 5),
+(2, 2, '2025-06-18 20:00:00', 'Dịch vụ tốt, gần biển.', 4);
