@@ -55,12 +55,12 @@ model NguoiDung {
   birth_day DateTime?         @db.Date
   gender    NguoiDung_gender?
   role      String?           @default("guest") @db.VarChar(50)
+  avatar    String?           @db.VarChar(255)
   deletedBy Int               @default(0)
   isDeleted Boolean           @default(false)
   deletedAt DateTime?         @db.Timestamp(0)
   createdAt DateTime          @default(now()) @db.Timestamp(0)
   updatedAt DateTime          @default(now()) @db.Timestamp(0)
-  avatar    String?           @db.VarChar(255)
   BinhLuan  BinhLuan[]
   DatPhong  DatPhong[]
 }

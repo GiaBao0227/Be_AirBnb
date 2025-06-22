@@ -3,62 +3,61 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
+  Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import chalk from 'chalk';
+
+// Đảm bảo bạn import chalk đúng cách như thế này
+import * as chalk from 'chalk';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const req = context.switchToHttp().getRequest();
-    const res = context.switchToHttp().getResponse();
-    const method = req.method;
-    const url = req.originalUrl || req.url;
-    const now = Date.now();
+  private readonly logger = new Logger('HTTP');
 
-    const timestamp = new Date()
-      .toISOString()
-      .replace('T', ' ')
-      .substring(0, 19);
-
-    const methodColor = this.getMethodColor(method);
-    const statusCode = res.statusCode;
-
-    return next.handle().pipe(
-      tap(() => {
-        const responseTime = Date.now() - now;
-        const statusColor = this.getStatusColor(statusCode);
-
-        console.log(
-          `${chalk.gray(`[${timestamp}]`)}` +
-            `${methodColor(`${method.padStart(5).padEnd(6)}`)} ${chalk.white(url)} ` +
-            `${statusColor(`${statusCode}`)} ${chalk.yellow(`${responseTime}ms`)}`,
-        );
-      }),
-    );
-  }
-
-  private getMethodColor(method: string): (text: string) => string {
+  // Phương thức này dùng để lấy hàm màu dựa trên phương thức HTTP
+  // LỖI CỦA BẠN RẤT CÓ THỂ NẰM Ở ĐÂY (dòng 47)
+  private getMethodColor(method: string) {
     switch (method.toUpperCase()) {
       case 'GET':
         return chalk.green;
       case 'POST':
-        return chalk.blue;
+        return chalk.blue; // Đây là nơi bạn đang cố gắng gọi '.blue'
       case 'PUT':
         return chalk.yellow;
+      case 'PATCH':
+        return chalk.yellowBright;
       case 'DELETE':
         return chalk.red;
       default:
-        return chalk.white;
+        return chalk.white; // Mặc định là màu trắng
     }
   }
 
-  private getStatusColor(statusCode: number): (text: string) => string {
-    if (statusCode >= 200 && statusCode < 300) return chalk.green;
-    if (statusCode >= 300 && statusCode < 400) return chalk.cyan;
-    if (statusCode >= 400 && statusCode < 500) return chalk.red;
-    if (statusCode >= 500) return chalk.red.bold;
-    return chalk.white;
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const request = context.switchToHttp().getRequest();
+    const { method, url } = request;
+    const now = Date.now();
+
+    // Lấy hàm màu từ phương thức ở trên
+    const colorizer = this.getMethodColor(method);
+
+    // Log request ban đầu
+    this.logger.log(`[Request] ${colorizer(method)} ${url}`);
+
+    return next.handle().pipe(
+      tap(() => {
+        const response = context.switchToHttp().getResponse();
+        const { statusCode } = response;
+        const delay = Date.now() - now;
+
+        // Log response sau khi hoàn tất
+        this.logger.log(
+          `[Response] ${colorizer(
+            method,
+          )} ${url} - Status: ${statusCode} - ${delay}ms`,
+        );
+      }),
+    );
   }
 }
