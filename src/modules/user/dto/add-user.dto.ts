@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, IsIn, IsDateString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsIn,
+  IsDateString,
+} from 'class-validator';
 
 export class AdduserDto {
   @ApiProperty({ example: 'Nguyễn Văn A' })
@@ -27,9 +33,15 @@ export class AdduserDto {
   @IsDateString()
   birth_day?: string;
 
-  @ApiProperty({ example: 'male', enum: ['male', 'female', 'other'], required: false })
+  @ApiProperty({
+    example: 'male',
+    enum: ['male', 'female', 'other'],
+    required: false,
+  })
   @IsOptional()
-  @IsIn(['male', 'female', 'other'], { message: 'Giới tính phải là male, female hoặc other' })
+  @IsIn(['male', 'female', 'other'], {
+    message: 'Giới tính phải là male, female hoặc other',
+  })
   gender?: 'male' | 'female' | 'other';
 
   @ApiProperty({ example: 'admin', required: false })

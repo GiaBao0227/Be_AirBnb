@@ -7,10 +7,10 @@ export class PaginationLocationDto {
   @ApiPropertyOptional({
     description: 'Số trang muốn lấy, bắt đầu từ 1.',
     default: 1,
-    type: Number, 
+    type: Number,
   })
   @IsOptional()
-  @IsString() 
+  @IsString()
   page?: string;
 
   @ApiPropertyOptional({

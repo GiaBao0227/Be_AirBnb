@@ -8,37 +8,37 @@ import { RefreshTokenDto } from './dto/refreshtoken-auth.dto';
 
 @Controller('Auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
-    @Public()
-    @Post('DangKy')
-    async register(
-        @Body()
-        body : RegisterDto
-    ){
-        return this.authService.register(body)
-    }
-    @Public()
-    @Post('DangNhap')
-    async login(
-        @Body()
-        body : LoginDto
-    ){
-        return this.authService.login(body)
-    }
-    @Get('LayThongTinNguoiDungDangNhap')
-    @ApiBearerAuth('AccessToken')
-    async getUserInfo(
-        @Request()
-        req: any
-    ){
-        return this.authService.getUserInfo(req.user)
-    }
-    @Public()
-    @Post('RefreshToken')
-    async refreshToken(
-        @Body()
-        body : RefreshTokenDto
-    ){
-        return this.authService.refreshToken(body)
-    }
+  constructor(private readonly authService: AuthService) {}
+  @Public()
+  @Post('DangKy')
+  async register(
+    @Body()
+    body: RegisterDto,
+  ) {
+    return this.authService.register(body);
+  }
+  @Public()
+  @Post('DangNhap')
+  async login(
+    @Body()
+    body: LoginDto,
+  ) {
+    return this.authService.login(body);
+  }
+  @Get('LayThongTinNguoiDungDangNhap')
+  @ApiBearerAuth('AccessToken')
+  async getUserInfo(
+    @Request()
+    req: any,
+  ) {
+    return this.authService.getUserInfo(req.user);
+  }
+  @Public()
+  @Post('RefreshToken')
+  async refreshToken(
+    @Body()
+    body: RefreshTokenDto,
+  ) {
+    return this.authService.refreshToken(body);
+  }
 }

@@ -17,10 +17,9 @@ export class LoggingInterceptor implements NestInterceptor {
     const url = req.originalUrl || req.url;
     const now = Date.now();
 
-    const timestamp = new Date()
-      .toISOString()
-      .replace('T', ' ')
-      .substring(0, 19);
+    const timestamp = new Date().toLocaleString('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+    });
 
     const methodColor = this.getMethodColor(method);
     const statusCode = res.statusCode;
@@ -31,8 +30,8 @@ export class LoggingInterceptor implements NestInterceptor {
         const statusColor = this.getStatusColor(statusCode);
 
         console.log(
-          `${chalk.gray(`[${timestamp}]`)}` +
-            `${methodColor(`${method.padStart(5).padEnd(6)}`)} ${chalk.white(url)} ` +
+          `${chalk.gray(`[${timestamp}]`)} ` +
+            `${methodColor(`${method.padEnd(6)}`)} ${chalk.white(url)} ` +
             `${statusColor(`${statusCode}`)} ${chalk.yellow(`${responseTime}ms`)}`,
         );
       }),
@@ -47,6 +46,8 @@ export class LoggingInterceptor implements NestInterceptor {
         return chalk.blue;
       case 'PUT':
         return chalk.yellow;
+      case 'PATCH':
+        return chalk.magenta;
       case 'DELETE':
         return chalk.red;
       default:
