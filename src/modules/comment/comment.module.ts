@@ -1,5 +1,3 @@
-// src/modules/comment/comment.module.ts
-
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CommentController } from './comment.controller';

@@ -54,7 +54,7 @@ model NguoiDung {
   phone     String?           @db.VarChar(20)
   birth_day DateTime?         @db.Date
   gender    NguoiDung_gender?
-  role      String?           @default("guest") @db.VarChar(50)
+  role      String?           @default("user") @db.VarChar(50)
   avatar    String?           @db.VarChar(255)
   deletedBy Int               @default(0)
   isDeleted Boolean           @default(false)

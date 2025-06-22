@@ -49,6 +49,9 @@ export class RoomsService {
       take: pageSize,
       orderBy: { createdAt: 'desc' },
       where: where,
+      include: {
+        ViTri: true,
+      },
     });
 
     const totalItem = await this.prismaService.phong.count({
@@ -65,7 +68,34 @@ export class RoomsService {
     };
   }
 
+  async search(keyword: string) {
+    if (!keyword) {
+      return [];
+    }
+    return this.prismaService.phong.findMany({
+      orderBy: { createdAt: 'desc' },
+      where: {
+        ten_phong: {
+          contains: keyword,
+        },
+      },
+      include: {
+        ViTri: true,
+      },
+    });
+  }
+
   async create(createRoomDto: CreateRoomDto) {
+    const { vi_tri_id } = createRoomDto;
+
+    const location = await this.prismaService.viTri.findFirst({
+      where: { id: vi_tri_id },
+    });
+
+    if (!location) {
+      throw new BadRequestException(`Vị trí phòng không tồn tại.`);
+    }
+
     const room = await this.prismaService.phong.create({
       data: createRoomDto,
     });
@@ -79,6 +109,9 @@ export class RoomsService {
   async findOne(id: number) {
     const room = await this.prismaService.phong.findFirst({
       where: { id, isDeleted: false },
+      include: {
+        ViTri: true,
+      },
     });
 
     return {
@@ -96,6 +129,16 @@ export class RoomsService {
 
     if (!existingRoom) {
       throw new BadRequestException(`Không tìm thấy phòng`);
+    }
+
+    if (updateRoomDto.vi_tri_id) {
+      const location = await this.prismaService.viTri.findFirst({
+        where: { id: updateRoomDto.vi_tri_id },
+      });
+
+      if (!location) {
+        throw new BadRequestException(`Vị trí phòng không tồn tại.`);
+      }
     }
 
     const room = await this.prismaService.phong.update({

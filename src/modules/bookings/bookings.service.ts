@@ -79,7 +79,48 @@ export class BookingsService {
     };
   }
 
+  async search(keyword: string) {
+    if (!keyword) {
+      return [];
+    }
+    return this.prismaService.datPhong.findMany({
+      orderBy: { createdAt: 'desc' },
+      where: {
+        Phong: {
+          ViTri: {
+            tinh_thanh: {
+              contains: keyword,
+            },
+          },
+        },
+      },
+      include: {
+        Phong: {
+          include: {
+            ViTri: true,
+          },
+        },
+      },
+    });
+  }
+
   async create(createBookingDto: CreateBookingDto) {
+    const { ma_phong, so_luong_khach } = createBookingDto;
+
+    const room = await this.prismaService.phong.findFirst({
+      where: { id: ma_phong, isDeleted: false },
+    });
+
+    if (!room) {
+      throw new BadRequestException(`Phòng với ID ${ma_phong} không tồn tại`);
+    }
+
+    if (so_luong_khach > room.khach) {
+      throw new BadRequestException(
+        `Số lượng khách (${so_luong_khach}) vượt quá giới hạn phòng (${room.khach})`,
+      );
+    }
+
     const booking = await this.prismaService.datPhong.create({
       data: createBookingDto,
     });
@@ -93,6 +134,14 @@ export class BookingsService {
   async findOne(id: number) {
     const booking = await this.prismaService.datPhong.findFirst({
       where: { id, isDeleted: false },
+      include: {
+        Phong: {
+          include: {
+            ViTri: true,
+          },
+        },
+        NguoiDung: true,
+      },
     });
 
     return {

@@ -1,5 +1,3 @@
-// src/modules/comment/dto/pagination-comment.dto.ts
-
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
@@ -22,7 +20,6 @@ export class PaginationCommentDto {
   @IsString()
   pageSize?: string;
 
-  // ✨ THÊM TRƯỜNG TÌM KIẾM ✨
   @ApiPropertyOptional({
     description: 'Từ khóa để tìm kiếm theo nội dung bình luận.',
   })

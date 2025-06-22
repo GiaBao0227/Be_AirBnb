@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -13,7 +14,6 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 export class CommentService {
   constructor(private prisma: PrismaClient) {}
 
-  // LẤY BÌNH LUẬN THEO PHÂN TRANG VÀ TÌM KIẾM
   async findAllWithPagination(paginationDto: {
     page: number;
     pageSize: number;
@@ -22,9 +22,7 @@ export class CommentService {
     const { page, pageSize, keyword } = paginationDto;
     const skip = (page - 1) * pageSize;
 
-    const whereCondition = keyword
-      ? { noi_dung: { contains: keyword, mode: 'insensitive' } }
-      : {};
+    const whereCondition = keyword ? { noi_dung: { contains: keyword } } : {};
 
     const [totalItems, items] = await this.prisma.$transaction([
       this.prisma.binhLuan.count({ where: whereCondition }),
@@ -58,19 +56,35 @@ export class CommentService {
       },
     });
   }
-  // Lấy tất cả bình luận theo mã phòng
+
   findAllByRoom(roomId: number) {
     return this.prisma.binhLuan.findMany({ where: { ma_phong: roomId } });
   }
 
-  // CREATE
-  create(dto: CreateCommentDto, userId: number) {
-    return this.prisma.binhLuan.create({
-      data: { ...dto, ma_nguoi_binh_luan: userId, ngay_binh_luan: new Date() },
+  async create(dto: CreateCommentDto, userId: number) {
+    const existingBooking = await this.prisma.datPhong.findFirst({
+      where: {
+        ma_phong: dto.ma_phong,
+        ma_nguoi_dat: userId,
+        isDeleted: false,
+      },
+    });
+
+    if (!existingBooking) {
+      throw new BadRequestException(
+        'Bạn chưa đặt phòng này nên không thể bình luận.',
+      );
+    }
+
+    return await this.prisma.binhLuan.create({
+      data: {
+        ...dto,
+        ma_nguoi_binh_luan: userId,
+        ngay_binh_luan: new Date(),
+      },
     });
   }
 
-  // UPDATE
   async update(
     id: number,
     dto: UpdateCommentDto,
@@ -86,7 +100,6 @@ export class CommentService {
     return this.prisma.binhLuan.update({ where: { id }, data: dto });
   }
 
-  // DELETE
   async remove(id: number, userId: number, userRole: string) {
     const comment = await this.prisma.binhLuan.findUnique({ where: { id } });
     if (!comment)

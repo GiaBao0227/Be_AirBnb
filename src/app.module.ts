@@ -14,9 +14,9 @@ import { UserModule } from './modules/user/user.module';
   imports: [
     AuthModule,
     UserModule,
+    LocationModule,
     RoomsModule,
     BookingsModule,
-    LocationModule,
     CommentModule,
   ],
   controllers: [AppController],

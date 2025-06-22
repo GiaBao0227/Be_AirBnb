@@ -1,5 +1,3 @@
-// src/modules/auth/auth.service.ts
-
 import {
   BadRequestException,
   ConflictException,
@@ -79,14 +77,11 @@ export class AuthService {
       where: { email: body.email },
     });
 
-    if (!userExists) {
+    if (!userExists)
       throw new BadRequestException('Email hoặc mật khẩu không chính xác.');
-    }
-    if (!userExists.pass_word) {
-      throw new BadRequestException(
-        'Tài khoản này không hỗ trợ đăng nhập bằng mật khẩu.',
-      );
-    }
+
+    if (!userExists.pass_word)
+      throw new BadRequestException('Mật khẩu không hợp lệ.');
 
     const isPasswordMatching = await bcrypt.compare(
       body.password,
@@ -96,29 +91,20 @@ export class AuthService {
       throw new BadRequestException('Email hoặc mật khẩu không chính xác.');
     }
 
-    // Tạo token với id và role
     const tokens = this.tokenService.createToken(
       userExists.id,
       userExists.role || 'user',
     );
 
-    // Không trả về mật khẩu
     const { pass_word, ...userWithoutPassword } = userExists;
     return { ...tokens, user: userWithoutPassword };
   }
 
   async getUserInfo(user: any) {
-    // user được lấy từ token (sau khi đi qua ProtectStrategy)
-    // nên nó đã là thông tin mới nhất từ database và đã được xác thực
     const { pass_word, ...userInfo } = user;
     return userInfo;
   }
 
-  /**
-   * Hàm làm mới token.
-   * @param body Chứa accessToken cũ và refreshToken hợp lệ.
-   * @returns Một cặp accessToken và refreshToken mới.
-   */
   async refreshToken(body: RefreshTokenDto) {
     const { accessToken, refreshToken } = body;
     if (!accessToken || !refreshToken) {
@@ -129,7 +115,16 @@ export class AuthService {
     let decodedRefreshToken;
 
     try {
-      // Xác thực refreshToken. Nếu không hợp lệ hoặc hết hạn, nó sẽ ném lỗi.
+      decodedAccessToken = jwt.verify(
+        accessToken,
+        ACCESS_TOKEN_SECRET as string,
+        { ignoreExpiration: true },
+      ) as { id: number; role: string };
+    } catch (error) {
+      throw new UnauthorizedException('Access token không hợp lệ.');
+    }
+
+    try {
       decodedRefreshToken = jwt.verify(
         refreshToken,
         REFRESH_TOKEN_SECRET as string,
@@ -140,24 +135,10 @@ export class AuthService {
       );
     }
 
-    try {
-      // Giải mã accessToken cũ mà không cần kiểm tra hạn (để lấy thông tin user)
-      decodedAccessToken = jwt.verify(
-        accessToken,
-        ACCESS_TOKEN_SECRET as string,
-        { ignoreExpiration: true },
-      ) as { id: number; role: string };
-    } catch (error) {
-      // Dù bỏ qua hết hạn, vẫn có thể lỗi nếu token bị thay đổi
-      throw new UnauthorizedException('Access token không hợp lệ.');
-    }
-
-    // Kiểm tra xem ID trong hai token có khớp nhau không
     if (decodedRefreshToken.id !== decodedAccessToken.id) {
       throw new UnauthorizedException('Token không đồng bộ.');
     }
 
-    // Lấy lại thông tin user từ DB để đảm bảo role là mới nhất
     const user = await this.prismaService.nguoiDung.findUnique({
       where: { id: decodedRefreshToken.id },
     });
@@ -166,7 +147,6 @@ export class AuthService {
       throw new UnauthorizedException('Người dùng không còn tồn tại.');
     }
 
-    // Tạo ra một cặp token mới với thông tin mới nhất
     const newTokens = this.tokenService.createToken(
       user.id,
       user.role || 'user',

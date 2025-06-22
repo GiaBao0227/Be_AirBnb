@@ -11,9 +11,7 @@ import {
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
-  // Thêm `role` vào hàm này
   createToken(id: number, role: string) {
-    // Payload bây giờ sẽ chứa cả id và role
     const payload = { id, role };
 
     const accessToken = this.jwtService.sign(payload, {
