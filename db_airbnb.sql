@@ -82,9 +82,8 @@ CREATE TABLE Phong (
 
 INSERT INTO Phong (ten_phong, khach, phong_ngu, giuong, phong_tam, mo_ta, gia_tien, may_giat, ban_la, tivi, dieu_hoa, wifi, bep, do_xe, ho_boi, ban_ui, hinh_anh, vi_tri_id)
 VALUES 
-  ('Căn hộ HCM gần Bitexco', 4, 2, 2, 1, 'Căn hộ tiện nghi ngay trung tâm.', 500000, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, 'canho1.jpg', 1),
-  ('Chung cư cổ Hà Nội', 2, 1, 1, 1, 'Phong cách retro, gần hồ Hoàn Kiếm.', 350000, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, 'canho2.jpg', 2);
-
+  ('Chung cư cổ Hà Nội', 2, 1, 1, 1, 'Phong cách retro, gần hồ Hoàn Kiếm.', 350000, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, 'canho2.jpg', 1),
+  ('Căn hộ HCM gần Bitexco', 4, 2, 2, 1, 'Căn hộ tiện nghi ngay trung tâm.', 500000, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, 'canho1.jpg', 2);
 -- 4. Bảng Đặt Phòng
 CREATE TABLE DatPhong (
   id INT AUTO_INCREMENT PRIMARY KEY,

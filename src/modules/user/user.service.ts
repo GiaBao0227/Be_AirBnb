@@ -4,6 +4,10 @@ import { PaginationDto } from './dto/pagination-user.dto';
 import { AdduserDto } from './dto/add-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { PORT } from 'src/common/constant/app.constant';
+import * as fs from 'fs';
+import * as path from 'path';
+
 @Injectable()
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -176,5 +180,37 @@ export class UserService {
       throw new BadRequestException('Không tìm thấy loại người dùng nào');
     }
     return userTypes.map((item) => item.role);
+  }
+
+  async uploadAvatar(id: number, file: Express.Multer.File) {
+    if (!file || !file.filename) {
+      throw new BadRequestException('Không có file được upload');
+    }
+
+    const user = await this.prismaService.nguoiDung.findFirst({
+      where: { id, isDeleted: false },
+    });
+
+    if (!user) {
+      throw new BadRequestException(`Tài khoản với ID ${id} không tồn tại`);
+    }
+
+    if (user.avatar) {
+      const oldFilePath = path.join('./', 'public/img', 'avatars', user.avatar);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+    }
+
+    await this.prismaService.nguoiDung.update({
+      where: { id },
+      data: { avatar: file.filename },
+    });
+
+    return {
+      message: 'Upload ảnh người dùng tiong',
+      filename: file.filename,
+      imgUrl: `http://localhost:${PORT}/images/users/${file.filename}`,
+    };
   }
 }

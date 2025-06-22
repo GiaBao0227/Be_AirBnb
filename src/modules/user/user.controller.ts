@@ -9,13 +9,24 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PaginationDto } from './dto/pagination-user.dto';
 import { AdduserDto } from './dto/add-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ProtectGuard } from '../auth/protect/protect.guard';
+import { uploadConfig } from 'src/config/upload.config';
+import { UploadFileDto } from 'src/common/dto/upload-file.dto';
 
 @ApiTags('User')
 @ApiBearerAuth('AccessToken')
@@ -131,5 +142,24 @@ export class UserController {
   async getAllUserType(@Req() req: any) {
     this.checkAdmin(req);
     return await this.userService.getAllUserType();
+  }
+
+  @Post('/:id/uploadAvatar')
+  @UseInterceptors(uploadConfig('avatars', 2))
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'ID người dùng',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Upload avatar',
+    type: UploadFileDto,
+  })
+  async uploadAvatar(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return await this.userService.uploadAvatar(+id, file);
   }
 }

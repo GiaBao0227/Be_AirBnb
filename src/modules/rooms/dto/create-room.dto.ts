@@ -104,7 +104,7 @@ export class CreateRoomDto {
   @IsString()
   hinh_anh?: string;
 
-  @ApiProperty({ description: 'ID vị trí', example: 1 })
+  @ApiProperty({ description: 'ID vị trí', example: 2 })
   @Type(() => Number)
   @IsNumber()
   vi_tri_id: number;

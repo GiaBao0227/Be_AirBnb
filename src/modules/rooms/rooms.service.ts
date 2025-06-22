@@ -181,7 +181,7 @@ export class RoomsService {
     }
 
     if (room.hinh_anh) {
-      const oldFilePath = path.join('./', 'images', 'rooms', room.hinh_anh);
+      const oldFilePath = path.join('./', 'public/img', 'rooms', room.hinh_anh);
       if (fs.existsSync(oldFilePath)) {
         fs.unlinkSync(oldFilePath);
       }

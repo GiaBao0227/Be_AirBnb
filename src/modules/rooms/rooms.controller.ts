@@ -119,10 +119,10 @@ export class RoomsController {
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Upload avatar',
+    description: 'Upload file',
     type: UploadFileDto,
   })
-  async uploadAvatar(
+  async uploadImage(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
     @Req() req: any,

@@ -104,7 +104,12 @@ export class LocationService {
       throw new BadRequestException(`Vị trí với ID ${id} không tồn tại`);
     }
     if (location.hinh_anh) {
-      const oldImagePath = path.join('image', 'locations', location.hinh_anh);
+      const oldImagePath = path.join(
+        './',
+        'public/img',
+        'locations',
+        location.hinh_anh,
+      );
       if (fs.existsSync(oldImagePath)) {
         fs.unlinkSync(oldImagePath);
       }
