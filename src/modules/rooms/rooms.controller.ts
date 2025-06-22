@@ -2,11 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -29,6 +31,14 @@ import { RoomsService } from './rooms.service';
 @Controller('api/rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
+
+  private checkAdmin(req: any) {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenException(
+        'Yêu cầu quyền Admin để thực hiện hành động này.',
+      );
+    }
+  }
 
   @Public()
   @Get('/')
@@ -53,10 +63,17 @@ export class RoomsController {
     return await this.roomsService.findPaginate(query);
   }
 
+  @Public()
+  @Get('/search')
+  async search(@Query('keyword') keyword: string) {
+    return await this.roomsService.search(keyword);
+  }
+
   @Post('/')
   @ApiBearerAuth('AccessToken')
   @ApiBody({ type: CreateRoomDto })
-  async create(@Body() createRoomDto: CreateRoomDto) {
+  async create(@Body() createRoomDto: CreateRoomDto, @Req() req: any) {
+    this.checkAdmin(req);
     return await this.roomsService.create(createRoomDto);
   }
 
@@ -75,14 +92,20 @@ export class RoomsController {
   @ApiBearerAuth('AccessToken')
   @ApiParam({ name: 'id', type: Number, description: 'ID phòng cần cập nhật' })
   @ApiBody({ type: UpdateRoomDto })
-  async update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateRoomDto: UpdateRoomDto,
+    @Req() req: any,
+  ) {
+    this.checkAdmin(req);
     return await this.roomsService.update(+id, updateRoomDto);
   }
 
   @Delete('/:id')
   @ApiBearerAuth('AccessToken')
   @ApiParam({ name: 'id', type: Number, description: 'ID phòng cần xóa' })
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @Req() req: any) {
+    this.checkAdmin(req);
     return await this.roomsService.remove(+id);
   }
 
@@ -102,7 +125,9 @@ export class RoomsController {
   async uploadAvatar(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
+    @Req() req: any,
   ) {
+    this.checkAdmin(req);
     return await this.roomsService.uploadImage(+id, file);
   }
 }

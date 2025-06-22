@@ -4,6 +4,7 @@ export class RefreshTokenDto {
   @IsString()
   @ApiProperty({ description: 'Access token' })
   accessToken: string;
+
   @IsString()
   @ApiProperty({ description: 'Refresh token' })
   refreshToken: string;

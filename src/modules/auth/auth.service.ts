@@ -18,19 +18,18 @@ import {
   ACCESS_TOKEN_SECRET,
   REFRESH_TOKEN_SECRET,
 } from 'src/common/constant/app.constant';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly tokenService: TokenService,
   ) {}
+
   async register(body: RegisterDto) {
     try {
-      // 1. Kiểm tra email đã tồn tại chưa
       const userExists = await this.prismaService.nguoiDung.findUnique({
-        where: {
-          email: body.email,
-        },
+        where: { email: body.email },
       });
 
       if (userExists) {
@@ -39,7 +38,6 @@ export class AuthService {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(body.password, salt);
 
-      // 3. Tạo user mới
       const newUser = await this.prismaService.nguoiDung.create({
         data: {
           name: body.name,
@@ -48,17 +46,17 @@ export class AuthService {
           phone: body.phone,
           birth_day: body.birthday ? new Date(body.birthday) : null,
           gender: body.gender,
-          role: 'guest',
+          role: 'user', // Mặc định vai trò là 'user'
         },
       });
+
+      // Không trả về mật khẩu
       const { pass_word, ...userWithoutPassword } = newUser;
       return {
         message: 'Đăng ký thành công',
         user: userWithoutPassword,
       };
     } catch (error) {
-      console.error('Đăng ký lỗi:', error);
-      // Nếu là lỗi unique email
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2002'
@@ -73,65 +71,87 @@ export class AuthService {
       );
     }
   }
+
   async login(body: LoginDto) {
     const userExists = await this.prismaService.nguoiDung.findUnique({
-      where: {
-        email: body.email,
-      },
+      where: { email: body.email },
     });
-    if (!userExists) {
-      throw new BadRequestException(
-        'Tài khoản chưa được đăng ký vui lòng đăng ký',
-      );
-    }
-    if (!userExists.pass_word) {
-      throw new BadRequestException('Mật khẩu không hợp lệ');
-    }
-    const isPassword = await bcrypt.compare(
+
+    if (!userExists)
+      throw new BadRequestException('Email hoặc mật khẩu không chính xác.');
+
+    if (!userExists.pass_word)
+      throw new BadRequestException('Mật khẩu không hợp lệ.');
+
+    const isPasswordMatching = await bcrypt.compare(
       body.password,
       userExists.pass_word,
     );
-    if (!isPassword) {
-      throw new BadRequestException('Mật khẩu không chính xác');
+    if (!isPasswordMatching) {
+      throw new BadRequestException('Email hoặc mật khẩu không chính xác.');
     }
-    const tokens = this.tokenService.createToken(userExists.id);
-    return { ...tokens, user: userExists };
+
+    const tokens = this.tokenService.createToken(
+      userExists.id,
+      userExists.role || 'user',
+    );
+
+    const { pass_word, ...userWithoutPassword } = userExists;
+    return { ...tokens, user: userWithoutPassword };
   }
+
   async getUserInfo(user: any) {
-    return user;
+    const { pass_word, ...userInfo } = user;
+    return userInfo;
   }
+
   async refreshToken(body: RefreshTokenDto) {
     const { accessToken, refreshToken } = body;
-    if (!accessToken) {
-      throw new UnauthorizedException('Không có access token');
+    if (!accessToken || !refreshToken) {
+      throw new UnauthorizedException('Yêu cầu thiếu token.');
     }
-    if (!refreshToken) {
-      throw new UnauthorizedException('Không có refresh token');
-    }
-    let decodeAccessToken;
-    let decodeRefreshToken;
+
+    let decodedAccessToken;
+    let decodedRefreshToken;
+
     try {
-      decodeAccessToken = jwt.verify(
+      decodedAccessToken = jwt.verify(
         accessToken,
         ACCESS_TOKEN_SECRET as string,
         { ignoreExpiration: true },
-      );
+      ) as { id: number; role: string };
     } catch (error) {
-      throw new UnauthorizedException('Access token không hợp lệ');
-    }
-    try {
-      decodeRefreshToken = jwt.verify(
-        refreshToken,
-        REFRESH_TOKEN_SECRET as string,
-      );
-    } catch (error) {
-      throw new UnauthorizedException('Refresh token không hợp lệ');
+      throw new UnauthorizedException('Access token không hợp lệ.');
     }
 
-    if (decodeRefreshToken.userId !== decodeAccessToken.userId) {
-      throw new UnauthorizedException('Token không hợp lệ');
+    try {
+      decodedRefreshToken = jwt.verify(
+        refreshToken,
+        REFRESH_TOKEN_SECRET as string,
+      ) as { id: number };
+    } catch (error) {
+      throw new UnauthorizedException(
+        'Refresh token không hợp lệ hoặc đã hết hạn.',
+      );
     }
-    const tokens = this.tokenService.createToken(decodeRefreshToken.userId);
-    return { message: 'Làm mới token thành công', ...tokens };
+
+    if (decodedRefreshToken.id !== decodedAccessToken.id) {
+      throw new UnauthorizedException('Token không đồng bộ.');
+    }
+
+    const user = await this.prismaService.nguoiDung.findUnique({
+      where: { id: decodedRefreshToken.id },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Người dùng không còn tồn tại.');
+    }
+
+    const newTokens = this.tokenService.createToken(
+      user.id,
+      user.role || 'user',
+    );
+
+    return { message: 'Làm mới token thành công', ...newTokens };
   }
 }

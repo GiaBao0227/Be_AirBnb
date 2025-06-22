@@ -17,18 +17,17 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 
 @ApiTags('Booking')
+@ApiBearerAuth('AccessToken')
 @Controller('api/bookings')
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @Get('/')
-  @ApiBearerAuth('AccessToken')
   async findAll() {
     return await this.bookingsService.findAll();
   }
 
   @Get('/by-user/:userId')
-  @ApiBearerAuth('AccessToken')
   @ApiParam({
     name: 'userId',
     type: Number,
@@ -40,20 +39,22 @@ export class BookingsController {
   }
 
   @Get('/pagination')
-  @ApiBearerAuth('AccessToken')
   async findPaginate(@Query() query: PaginationQueryDto) {
     return await this.bookingsService.findPaginate(query);
   }
 
+  @Get('/search')
+  async search(@Query('keyword') keyword: string) {
+    return await this.bookingsService.search(keyword);
+  }
+
   @Post('/')
-  @ApiBearerAuth('AccessToken')
   @ApiBody({ type: CreateBookingDto })
   async create(@Body() createBookingDto: CreateBookingDto) {
     return await this.bookingsService.create(createBookingDto);
   }
 
   @Get('/:id')
-  @ApiBearerAuth('AccessToken')
   @ApiParam({
     name: 'id',
     required: true,
@@ -64,7 +65,6 @@ export class BookingsController {
   }
 
   @Patch('/:id')
-  @ApiBearerAuth('AccessToken')
   @ApiParam({
     name: 'id',
     type: Number,
@@ -79,7 +79,6 @@ export class BookingsController {
   }
 
   @Delete('/:id')
-  @ApiBearerAuth('AccessToken')
   @ApiParam({ name: 'id', type: Number, description: 'ID đặt phòng cần huỷ' })
   async remove(@Param('id') id: string) {
     return await this.bookingsService.remove(+id);

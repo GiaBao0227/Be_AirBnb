@@ -1,5 +1,3 @@
-// src/modules/location/location.service.ts
-
 import {
   Injectable,
   NotFoundException,
@@ -8,17 +6,14 @@ import {
 import { PrismaClient } from '@prisma/client';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import * as fs from 'fs';
+import * as path from 'path';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class LocationService {
   constructor(private prisma: PrismaClient) {}
 
-  /**
-   * Tạo một vị trí mới sau khi kiểm tra trùng lặp.
-   * @param createLocationDto Dữ liệu để tạo vị trí mới.
-   * @returns Vị trí vừa được tạo.
-   * @throws {ConflictException} Nếu vị trí đã tồn tại.
-   */
   async create(createLocationDto: CreateLocationDto) {
     const { ten_vi_tri, tinh_thanh } = createLocationDto;
 
@@ -38,19 +33,10 @@ export class LocationService {
     return this.prisma.viTri.create({ data: createLocationDto });
   }
 
-  /**
-   * Lấy danh sách tất cả các vị trí.
-   * @returns Một mảng các vị trí.
-   */
   findAll() {
     return this.prisma.viTri.findMany();
   }
 
-  /**
-   * Lấy danh sách vị trí theo phân trang và tìm kiếm.
-   * @param paginationDto Chứa thông tin page, pageSize, và keyword.
-   * @returns Một object chứa thông tin phân trang và danh sách các vị trí.
-   */
   async findWithPagination(paginationDto: {
     page: number;
     pageSize: number;
@@ -67,7 +53,6 @@ export class LocationService {
         }
       : {};
 
-    // Thực hiện 2 truy vấn song song để tối ưu hiệu năng
     const [totalItems, items] = await this.prisma.$transaction([
       this.prisma.viTri.count({ where: whereCondition }),
       this.prisma.viTri.findMany({
@@ -88,12 +73,6 @@ export class LocationService {
     };
   }
 
-  /**
-   * Lấy thông tin chi tiết của một vị trí theo ID.
-   * @param id ID của vị trí cần tìm.
-   * @returns Thông tin chi tiết của vị trí.
-   * @throws {NotFoundException} Nếu không tìm thấy vị trí.
-   */
   async findOne(id: number) {
     const location = await this.prisma.viTri.findUnique({ where: { id } });
     if (!location) {
@@ -102,47 +81,41 @@ export class LocationService {
     return location;
   }
 
-  /**
-   * Cập nhật thông tin một vị trí.
-   * @param id ID của vị trí cần cập nhật.
-   * @param updateLocationDto Dữ liệu cần cập nhật.
-   * @returns Vị trí đã được cập nhật.
-   */
   async update(id: number, updateLocationDto: UpdateLocationDto) {
-    await this.findOne(id); // Kiểm tra sự tồn tại trước
+    await this.findOne(id);
     return this.prisma.viTri.update({
       where: { id: id },
       data: updateLocationDto,
     });
   }
 
-  /**
-   * Xóa một vị trí.
-   * @param id ID của vị trí cần xóa.
-   * @returns Một thông báo xác nhận đã xóa.
-   */
   async remove(id: number) {
-    await this.findOne(id); // Kiểm tra sự tồn tại trước
+    await this.findOne(id);
     await this.prisma.viTri.delete({ where: { id } });
     return { message: `Đã xóa thành công vị trí ID ${id}` };
   }
 
-  /**
-   * Cập nhật hình ảnh cho một vị trí.
-   * @param id ID của vị trí cần cập nhật ảnh.
-   * @param fileName Tên file ảnh đã được upload.
-   * @returns Vị trí đã được cập nhật thông tin ảnh.
-   */
   async uploadImage(id: number, fileName: string) {
-    await this.findOne(id); // Kiểm tra sự tồn tại trước
+    if (!fileName) {
+      throw new BadRequestException('Không có file được upload');
+    }
+    const location = await this.findOne(id);
+    if (!location) {
+      throw new BadRequestException(`Vị trí với ID ${id} không tồn tại`);
+    }
+    if (location.hinh_anh) {
+      const oldImagePath = path.join('image', 'locations', location.hinh_anh);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
     return this.prisma.viTri.update({
-      where: { id: id },
+      where: { id },
       data: { hinh_anh: fileName },
     });
   }
 
   async search(keyword: string) {
-    // Nếu không có keyword, trả về mảng rỗng hoặc tất cả (tùy logic bạn muốn)
     if (!keyword) {
       return [];
     }

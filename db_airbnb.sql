@@ -1,3 +1,5 @@
+USE db_airbnb;
+
 CREATE TABLE ViTri (
   id INT AUTO_INCREMENT PRIMARY KEY,
   ten_vi_tri VARCHAR(255) NOT NULL,
@@ -15,19 +17,19 @@ CREATE TABLE ViTri (
 
 INSERT INTO ViTri (ten_vi_tri, tinh_thanh, quoc_gia, hinh_anh)
 VALUES 
-('Khu phố cổ', 'Hà Nội', 'Việt Nam', 'https://example.com/hanoi.jpg'),
-('Bãi biển Nha Trang', 'Khánh Hòa', 'Việt Nam', 'https://example.com/nhatrang.jpg');
+  ('Phố cổ Hà Nội', 'Hà Nội', 'Việt Nam', 'hanoi.jpg'),
+  ('Trung tâm TP.HCM', 'Hồ Chí Minh', 'Việt Nam', 'hochiminh.jpg');
 
 -- 2. Bảng Người Dùng
 CREATE TABLE NguoiDung (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
-  pass_word VARCHAR(255) NOT NULL, -- Nhớ hash mật khẩu trước khi lưu!
+  pass_word VARCHAR(255) NOT NULL,
   phone VARCHAR(20),
   birth_day DATE,
   gender ENUM('male','female','other'),
-  role VARCHAR(50) DEFAULT 'guest', -- Có thể là 'user', 'admin', etc.
+  role VARCHAR(50) DEFAULT 'user',
   avatar varchar(255) DEFAULT NULL,
 
   -- Audit fields
@@ -39,9 +41,9 @@ CREATE TABLE NguoiDung (
 ) ENGINE=InnoDB;
 
 INSERT INTO NguoiDung (name, email, pass_word, phone, birth_day, gender, role)
-VALUES 
-('Nguyen Van A', 'a.nguyen@example.com', '$2b$10$sLFPKjIZwdVBRO/ZhnZH0ejPRk2EACsKL.tW0EEbNbkWtXKhGfawK', '0901234567', '1990-05-15', 'male', 'user'),
-('Tran Thi B', 'b.tran@example.com', '$2b$10$sLFPKjIZwdVBRO/ZhnZH0ejPRk2EACsKL.tW0EEbNbkWtXKhGfawK', '0912345678', '1995-10-20', 'female', 'user');
+VALUES
+  ('Admin', 'admin@gmail.com', '$2b$10$WPVngAMYDNYp/leuqmCDfu3gpRiQXYbtZCZLN7U99A9Pg/tKd/x26', '0907654321', '1985-05-05', 'male', 'admin'),
+  ('Tran Thi B', 'tranthib@gmail.com', '$2b$10$560dd/Zqbzz8463bHwrUOub/42.BpzLa/g2JGHqgBNe8bvfSXCHq6', '0901234567', '1990-01-01', 'male', 'user');
 
 -- 3. Bảng Phòng
 CREATE TABLE Phong (
@@ -52,7 +54,7 @@ CREATE TABLE Phong (
   giuong INT NOT NULL DEFAULT 1,
   phong_tam INT NOT NULL DEFAULT 1,
   mo_ta TEXT,
-  gia_tien DECIMAL(12,2) NOT NULL, -- Phù hợp cho giá tiền
+  gia_tien DECIMAL(12,2) NOT NULL, 
   may_giat BOOLEAN DEFAULT FALSE,
   ban_la BOOLEAN DEFAULT FALSE,
   tivi BOOLEAN DEFAULT FALSE,
@@ -80,8 +82,8 @@ CREATE TABLE Phong (
 
 INSERT INTO Phong (ten_phong, khach, phong_ngu, giuong, phong_tam, mo_ta, gia_tien, may_giat, ban_la, tivi, dieu_hoa, wifi, bep, do_xe, ho_boi, ban_ui, hinh_anh, vi_tri_id)
 VALUES 
-('Phòng gia đình Hà Nội', 4, 2, 2, 1, 'Phòng rộng rãi, view đẹp', 1500000.00, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE, 'https://example.com/room1.jpg', 1),
-('Biệt thự biển Nha Trang', 6, 3, 3, 2, 'Gần biển, tiện nghi cao cấp', 3000000.00, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, 'https://example.com/room2.jpg', 2);
+  ('Căn hộ HCM gần Bitexco', 4, 2, 2, 1, 'Căn hộ tiện nghi ngay trung tâm.', 500000, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, 'canho1.jpg', 1),
+  ('Chung cư cổ Hà Nội', 2, 1, 1, 1, 'Phong cách retro, gần hồ Hoàn Kiếm.', 350000, FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, 'canho2.jpg', 2);
 
 -- 4. Bảng Đặt Phòng
 CREATE TABLE DatPhong (
@@ -111,8 +113,8 @@ CREATE TABLE DatPhong (
 
 INSERT INTO DatPhong (ma_phong, ngay_den, ngay_di, so_luong_khach, ma_nguoi_dat)
 VALUES 
-(1, '2025-06-20 14:00:00', '2025-06-25 12:00:00', 4, 1),
-(2, '2025-07-01 15:00:00', '2025-07-05 11:00:00', 6, 2);
+  (1, '2025-07-01 14:00:00', '2025-07-05 12:00:00', 2, 1),
+  (2, '2025-08-10 13:00:00', '2025-08-12 11:00:00', 1, 2);
 
 -- 5. Bảng Bình Luận
 CREATE TABLE BinhLuan (
@@ -140,7 +142,7 @@ CREATE TABLE BinhLuan (
   updatedAt TIMESTAMP NOT NULL   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-INSERT INTO BinhLuan (ma_phong, ma_nguoi_binh_luan, ngay_binh_luan, noi_dung, sao_binh_luan)
+INSERT INTO BinhLuan (ma_phong, ma_nguoi_binh_luan, noi_dung, sao_binh_luan)
 VALUES 
-(1, 1, '2025-06-18 20:00:00', 'Phòng sạch sẽ, view đẹp!', 5),
-(2, 2, '2025-06-18 20:00:00', 'Dịch vụ tốt, gần biển.', 4);
+  (1, 1, 'Phòng sạch sẽ, vị trí tốt, chủ nhà thân thiện.', 5),
+  (2, 2, 'Căn hộ đẹp nhưng hơi ồn buổi tối.', 3);

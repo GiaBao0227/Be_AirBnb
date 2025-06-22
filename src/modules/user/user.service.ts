@@ -15,6 +15,7 @@ export class UserService {
       data: users,
     };
   }
+
   async getAllUserPagination(paginationDto: PaginationDto) {
     let { page, pageSize, search } = paginationDto;
     page = +page > 0 ? +page : 1;
@@ -43,6 +44,7 @@ export class UserService {
       items: users || [],
     };
   }
+
   async searchUser(name: string) {
     const where = { name: { contains: name } };
     const user = await this.prismaService.nguoiDung.findMany({
@@ -57,6 +59,7 @@ export class UserService {
       data: user,
     };
   }
+
   async addUser(body: AdduserDto) {
     const { name, email, pass_word, phone, birth_day, gender, role } = body;
     const existingUser = await this.prismaService.nguoiDung.findUnique({
@@ -83,6 +86,7 @@ export class UserService {
       ...userWithoutPassword,
     };
   }
+
   async deleteUser(email: string) {
     const user = await this.prismaService.nguoiDung.findUnique({
       where: { email },
@@ -98,6 +102,7 @@ export class UserService {
       ...user,
     };
   }
+
   async updateUser(id: number, body: UpdateUserDto) {
     const existingUser = await this.prismaService.nguoiDung.findUnique({
       where: { id },
@@ -141,6 +146,7 @@ export class UserService {
       ...userWithoutPassword,
     };
   }
+
   async getUserInfo(email: string) {
     const user = await this.prismaService.nguoiDung.findUnique({
       where: { email },
@@ -153,6 +159,7 @@ export class UserService {
       ...user,
     };
   }
+
   async getAllUserType() {
     const userTypes = await this.prismaService.nguoiDung.findMany({
       where: {

@@ -1,5 +1,3 @@
-// src/modules/location/location.controller.ts
-
 import {
   Controller,
   Get,
@@ -15,6 +13,7 @@ import {
   ForbiddenException,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -24,17 +23,16 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { LocationService } from './location.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { PaginationLocationDto } from './dto/pagination-location.dto';
 import { Public } from 'src/common/decorator/public.decorator';
 import { ProtectGuard } from 'src/modules/auth/protect/protect.guard';
-import uploadLocal from 'src/common/multer/local.multer';
+import { uploadConfig } from 'src/config/upload.config';
 
-@ApiTags('Location') // Thay đổi Tag để nhóm lại trên Swagger
-@Controller('Location') // Thay đổi prefix của controller
+@ApiTags('Location')
+@Controller('Location')
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
@@ -122,7 +120,7 @@ export class LocationController {
     required: true,
     description: 'ID của vị trí cần upload ảnh',
   })
-  @UseInterceptors(FileInterceptor('file', uploadLocal))
+  @UseInterceptors(uploadConfig('locations', 2))
   uploadImage(
     @Query('maViTri', ParseIntPipe) maViTri: number,
     @UploadedFile() file: Express.Multer.File,
@@ -132,6 +130,9 @@ export class LocationController {
       throw new ForbiddenException(
         'Bạn không có quyền thực hiện hành động này.',
       );
+    if (!file || !file.filename) {
+      throw new BadRequestException('Không có file được upload');
+    }
     return this.locationService.uploadImage(maViTri, file.filename);
   }
 }

@@ -2,30 +2,41 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Post,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from './dto/pagination-user.dto';
 import { AdduserDto } from './dto/add-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
-@Controller('QuanLyNguoiDung')
+@ApiTags('User')
+@ApiBearerAuth('AccessToken')
+@Controller('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  private checkAdmin(req: any) {
+    if (req.user.role !== 'admin') {
+      throw new ForbiddenException(
+        'Yêu cầu quyền Admin để thực hiện hành động này.',
+      );
+    }
+  }
+
   @Get('LayDanhSachNguoiDung')
-  @ApiBearerAuth('AccessToken')
-  async getAllUser() {
+  async getAllUser(@Req() req: any) {
+    this.checkAdmin(req);
     return await this.userService.getAllUser();
   }
 
   @Get('LayDanhSachNguoiDungPhanTrang')
-  @ApiBearerAuth('AccessToken')
   @ApiQuery({
     name: 'page',
     required: false,
@@ -48,7 +59,9 @@ export class UserController {
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
     @Query('search') search: string,
+    @Req() req: any,
   ) {
+    this.checkAdmin(req);
     const paginationDto: PaginationDto = {
       page,
       pageSize,
@@ -58,59 +71,64 @@ export class UserController {
   }
 
   @Get('TimKiemNguoiDung')
-  @ApiBearerAuth('AccessToken')
   @ApiQuery({
     name: 'name',
     required: true,
     description: 'Tài khoản cần tìm kiếm',
     example: 'Quốc',
   })
-  async searchUser(@Query('name') name: string) {
+  async searchUser(@Query('name') name: string, @Req() req: any) {
+    this.checkAdmin(req);
     return this.userService.searchUser(name);
   }
 
   @Post('ThemNguoiDung')
-  @ApiBearerAuth('AccessToken')
   async addUser(
     @Body()
     body: AdduserDto,
+    @Req() req: any,
   ) {
+    this.checkAdmin(req);
     return this.userService.addUser(body);
   }
 
   @Delete('XoaNguoiDung')
-  @ApiBearerAuth('AccessToken')
   @ApiQuery({
     name: 'email',
     required: true,
     description: 'Tài khoản cần xóa',
     example: 'nguyenvana@gmail.com',
   })
-  async deleteUser(@Query('email') email: string) {
+  async deleteUser(@Query('email') email: string, @Req() req: any) {
+    this.checkAdmin(req);
     return this.userService.deleteUser(email);
   }
 
   @Put('CapNhatThongTinNguoiDung/:id')
-  @ApiBearerAuth('AccessToken')
-  async updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
+  async updateUser(
+    @Param('id') id: string,
+    @Body() body: UpdateUserDto,
+    @Req() req: any,
+  ) {
+    this.checkAdmin(req);
     return this.userService.updateUser(Number(id), body);
   }
 
   @Get('LayThongTinNguoiDung')
-  @ApiBearerAuth('AccessToken')
   @ApiQuery({
     name: 'email',
     required: true,
     description: 'Tài khoản cần lấy thông tin',
     example: 'nguyenvana@gmail.com',
   })
-  async getUserInfo(@Query('email') email: string) {
+  async getUserInfo(@Query('email') email: string, @Req() req: any) {
+    this.checkAdmin(req);
     return this.userService.getUserInfo(email);
   }
 
   @Get('LayDanhSachLoaiNguoiDung')
-  @ApiBearerAuth('AccessToken')
-  async getAllUserType() {
+  async getAllUserType(@Req() req: any) {
+    this.checkAdmin(req);
     return await this.userService.getAllUserType();
   }
 }

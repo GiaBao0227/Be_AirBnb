@@ -6,24 +6,28 @@ import {
   REFRESH_TOKEN_EXPIRES,
   REFRESH_TOKEN_SECRET,
 } from 'src/common/constant/app.constant';
+
 @Injectable()
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
-  createToken(id: number) {
-    const accessToken = this.jwtService.sign(
-      { id: id },
-      {
-        expiresIn: ACCESS_TOKEN_EXPIRES,
-        secret: ACCESS_TOKEN_SECRET,
-      },
-    );
+
+  createToken(id: number, role: string) {
+    const payload = { id, role };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: ACCESS_TOKEN_EXPIRES,
+      secret: ACCESS_TOKEN_SECRET,
+    });
+
+    // Refresh token chỉ cần id
     const refreshToken = this.jwtService.sign(
-      { id: id },
+      { id },
       {
         expiresIn: REFRESH_TOKEN_EXPIRES,
         secret: REFRESH_TOKEN_SECRET,
       },
     );
+
     return { accessToken, refreshToken };
   }
 }

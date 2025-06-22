@@ -4,7 +4,7 @@ import * as multer from 'multer';
 import * as path from 'path';
 
 export function uploadConfig(subfolder: string, maxSizeMB: number = 5) {
-  const uploadDir = path.join('images', subfolder);
+  const uploadDir = path.join('public/images', subfolder);
 
   fs.mkdirSync(uploadDir, { recursive: true });
 

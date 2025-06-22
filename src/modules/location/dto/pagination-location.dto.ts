@@ -1,5 +1,3 @@
-// src/modules/location/dto/pagination-location.dto.ts
-
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 

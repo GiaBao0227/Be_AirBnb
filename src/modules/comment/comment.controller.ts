@@ -1,5 +1,3 @@
-// src/modules/comment/comment.controller.ts
-
 import {
   Controller,
   Get,
@@ -27,14 +25,13 @@ import { Public } from 'src/common/decorator/public.decorator';
 import { ProtectGuard } from '../auth/protect/protect.guard';
 
 @ApiTags('Comment')
-@Controller('Comment') // Giống với controller Location
+@Controller('Comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  // --- API LẤY DANH SÁCH BÌNH LUẬN (PHÂN TRANG & TÌM KIẾM) ---
   @ApiBearerAuth('AccessToken')
   @UseGuards(ProtectGuard)
-  @Get('LayDanhSachBinhLuanPhanTrang') // Đổi tên cho đồng bộ
+  @Get('LayDanhSachBinhLuanPhanTrang')
   findAllWithPagination(@Query() paginationDto: PaginationCommentDto) {
     const page = parseInt(paginationDto.page || '1');
     const pageSize = parseInt(paginationDto.pageSize || '10');
@@ -52,7 +49,7 @@ export class CommentController {
   findAll() {
     return this.commentService.findAll();
   }
-  // --- API LẤY BÌNH LUẬN THEO MÃ PHÒNG ---
+
   @Public()
   @Get('LayBinhLuanTheoPhong/:idPhong')
   findAllByRoom(@Param('idPhong', ParseIntPipe) idPhong: number) {
@@ -70,7 +67,7 @@ export class CommentController {
   search(@Query('keyword') keyword: string) {
     return this.commentService.search(keyword);
   }
-  // --- CÁC API CRUD CƠ BẢN ---
+
   @ApiBearerAuth('AccessToken')
   @UseGuards(ProtectGuard)
   @Post('ThemBinhLuan')

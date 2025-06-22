@@ -17,6 +17,7 @@ export class AuthController {
   ) {
     return this.authService.register(body);
   }
+
   @Public()
   @Post('DangNhap')
   async login(
@@ -25,6 +26,7 @@ export class AuthController {
   ) {
     return this.authService.login(body);
   }
+
   @Get('LayThongTinNguoiDungDangNhap')
   @ApiBearerAuth('AccessToken')
   async getUserInfo(
@@ -33,6 +35,7 @@ export class AuthController {
   ) {
     return this.authService.getUserInfo(req.user);
   }
+
   @Public()
   @Post('RefreshToken')
   async refreshToken(

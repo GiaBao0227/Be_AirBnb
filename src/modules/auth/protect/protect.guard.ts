@@ -14,6 +14,7 @@ export class ProtectGuard extends AuthGuard('protect') {
   constructor(private reflector: Reflector) {
     super();
   }
+
   canActivate(context: ExecutionContext) {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -24,6 +25,7 @@ export class ProtectGuard extends AuthGuard('protect') {
     }
     return super.canActivate(context);
   }
+
   handleRequest(err: any, user: any, info: any) {
     if (err || !user) {
       if (info instanceof TokenExpiredError) {
