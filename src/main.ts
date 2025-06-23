@@ -5,7 +5,7 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 import { PORT } from './common/constant/app.constant';
 import { ValidationPipe } from '@nestjs/common';
-import { json } from 'body-parser'; // <-- BƯỚC 1: IMPORT
+import { json } from 'body-parser';
 import { LoggingInterceptor } from './common/interceptor/logging.interceptor';
 import { ResponseSuccessInterceptor } from './common/interceptor/response-success.interceptor';
 import { ProtectGuard } from './modules/auth/protect/protect.guard';
@@ -13,9 +13,7 @@ import { ProtectGuard } from './modules/auth/protect/protect.guard';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // ✨ BƯỚC 2: THÊM CẤU HÌNH BODY PARSER ✨
-  // Đặt nó ở gần đầu để nó chạy trước các xử lý khác
-  app.use(json({ limit: '50mb' })); // Tăng giới hạn payload JSON lên 50MB
+  app.use(json({ limit: '50mb' }));
 
   app.enableCors({
     origin: 'http://localhost:3000',

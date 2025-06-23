@@ -105,19 +105,36 @@ export class BookingsService {
   }
 
   async create(createBookingDto: CreateBookingDto) {
-    const { ma_phong, so_luong_khach } = createBookingDto;
+    const { ma_phong, so_luong_khach, ngay_den, ngay_di } = createBookingDto;
 
     const room = await this.prismaService.phong.findFirst({
       where: { id: ma_phong, isDeleted: false },
     });
-
     if (!room) {
       throw new BadRequestException(`Phòng với ID ${ma_phong} không tồn tại`);
     }
-
     if (so_luong_khach > room.khach) {
       throw new BadRequestException(
         `Số lượng khách (${so_luong_khach}) vượt quá giới hạn phòng (${room.khach})`,
+      );
+    }
+
+    const conflict = await this.prismaService.datPhong.findFirst({
+      where: {
+        ma_phong,
+        isDeleted: false,
+        OR: [
+          {
+            ngay_den: { lte: ngay_di },
+            ngay_di: { gte: ngay_den },
+          },
+        ],
+      },
+    });
+
+    if (conflict) {
+      throw new BadRequestException(
+        `Phòng đã có người đặt từ ${conflict.ngay_den.toISOString().slice(0, 10)} đến ${conflict.ngay_di.toISOString().slice(0, 10)}`,
       );
     }
 
@@ -200,5 +217,32 @@ export class BookingsService {
     });
 
     return { message: `Đã huỷ đặt phòng thành công` };
+  }
+
+  async getUserBookingStats(userId: number) {
+    const bookings = await this.prismaService.datPhong.findMany({
+      where: { ma_nguoi_dat: userId, isDeleted: false },
+      select: {
+        ma_phong: true,
+        Phong: {
+          select: {
+            gia_tien: true,
+          },
+        },
+      },
+    });
+
+    const totalBookings = bookings.length;
+    const totalRooms = new Set(bookings.map((b) => b.ma_phong)).size;
+    const totalSpent = bookings.reduce(
+      (sum, b) => sum + Number(b.Phong.gia_tien),
+      0,
+    );
+
+    return {
+      totalBookings,
+      totalRooms,
+      totalSpent,
+    };
   }
 }

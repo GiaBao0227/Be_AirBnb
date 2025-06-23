@@ -9,7 +9,13 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { BookingsService } from './bookings.service';
@@ -36,6 +42,11 @@ export class BookingsController {
   @ApiParam({ name: 'userId', type: Number })
   async findByUser(@Param('userId') userId: string, @Req() req: Request) {
     return await this.bookingsService.findByUser(+userId);
+  }
+
+  @Get('/my-history')
+  async findMyHistory(@Req() req: any) {
+    return await this.bookingsService.findByUser(+req.user.id);
   }
 
   @Get('/pagination')
@@ -82,5 +93,11 @@ export class BookingsController {
   @ApiParam({ name: 'id', type: Number, description: 'ID đặt phòng cần huỷ' })
   async remove(@Param('id') id: string) {
     return await this.bookingsService.remove(+id);
+  }
+
+  @Get('stats/user')
+  @ApiOperation({ summary: 'Thống kê booking của người dùng hiện tại' })
+  async getUserBookingStats(@Req() req: any) {
+    return this.bookingsService.getUserBookingStats(req.user.id);
   }
 }

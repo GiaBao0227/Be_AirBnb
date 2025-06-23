@@ -1,0 +1,1617 @@
+{
+	"info": {
+		"_postman_id": "ecca03c2-9ca0-4415-8c60-4f9c751f3304",
+		"name": "Airbnb",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40072984",
+		"_collection_link": "https://www.postman.com/telecoms-explorer-55531540/workspace/node-50/collection/40072984-ecca03c2-9ca0-4415-8c60-4f9c751f3304?action=share&source=collection_link&creator=40072984"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nguyễn Văn An\",\n  \"email\": \"nguyenvanan@gmail.com\",\n  \"password\": \"123456\",\n  \"phone\": \"0123456789\",\n  \"birthday\": \"2005-12-31\",\n  \"gender\": \"male\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}Auth/DangKy",
+							"host": [
+								"{{domain}}Auth"
+							],
+							"path": [
+								"DangKy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json()",
+									"console.log(res)",
+									"const accessToken = res.data.accessToken",
+									"const refreshToken = res.data.refreshToken",
+									"",
+									"pm.globals.set( \"accessToken\", accessToken )",
+									"pm.globals.set( \"refreshToken\", refreshToken )",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@gmail.com\",\n    \"password\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}Auth/DangNhap",
+							"host": [
+								"{{domain}}Auth"
+							],
+							"path": [
+								"DangNhap"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Auth/LayThongTinNguoiDungDangNhap",
+							"host": [
+								"{{domain}}Auth"
+							],
+							"path": [
+								"LayThongTinNguoiDungDangNhap"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const res = pm.response.json()",
+									"console.log(res)",
+									"const accessToken = res.data.accessToken",
+									"const refreshToken = res.data.refreshToken",
+									"",
+									"pm.globals.set( \"accessToken\", accessToken )",
+									"pm.globals.set( \"refreshToken\", refreshToken )",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"accessToken\": \"{{accessToken}}\",\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}Auth/RefreshToken",
+							"host": [
+								"{{domain}}Auth"
+							],
+							"path": [
+								"RefreshToken"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}User/LayDanhSachNguoiDung",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"LayDanhSachNguoiDung"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "about",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pagination",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}User/LayDanhSachNguoiDungPhanTrang?page=1&pageSize=2&search=",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"LayDanhSachNguoiDungPhanTrang"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "2"
+								},
+								{
+									"key": "search",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}User/TimKiemNguoiDung?name=Tran",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"TimKiemNguoiDung"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Tran"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nguyễn Văn Quang\",\n  \"email\": \"nguyenvanquang@gmail.com\",\n  \"pass_word\": \"123456\",\n  \"phone\": \"0123456789\",\n  \"birth_day\": \"2000-01-01\",\n  \"gender\": \"male\",\n  \"role\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}User/ThemNguoiDung",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"ThemNguoiDung"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}User/XoaNguoiDung?email=nguyenvanquang@gmail.com",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"XoaNguoiDung"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "nguyenvanquang@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Nguyễn Văn B\",\n  \"email\": \"nguyenvanb@gmail.com\",\n  \"pass_word\": \"abc123\",\n  \"phone\": \"0123456789\",\n  \"birth_day\": \"2000-01-01\",\n  \"gender\": \"male\",\n  \"role\": \"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}User/CapNhatThongTinNguoiDung/2",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"CapNhatThongTinNguoiDung",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Info By Email",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}User/LayThongTinNguoiDung?email=nguyenvanan@gmail.com",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"LayThongTinNguoiDung"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "nguyenvanan@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Type List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}User/LayDanhSachLoaiNguoiDung",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"LayDanhSachLoaiNguoiDung"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Avatar Local",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/nguyenvuongviet/Downloads/cv/IMG_1175.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}User/1/uploadAvatar",
+							"host": [
+								"{{domain}}User"
+							],
+							"path": [
+								"1",
+								"uploadAvatar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Location",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Location/LayDanhSachViTri",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"LayDanhSachViTri"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pagination",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Location/LayDanhSachViTriPhanTrang?page=1&pageSize=5&keyword=",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"LayDanhSachViTriPhanTrang"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "5"
+								},
+								{
+									"key": "keyword",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get One",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Location/LayThongTinViTri/1",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"LayThongTinViTri",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Location/TimKiemViTri?keyword=hcm",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"TimKiemViTri"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "hcm"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ten_vi_tri\": \"Hội An\",\n  \"tinh_thanh\": \"Quảng Nam\",\n  \"quoc_gia\": \"Việt Nam\",\n  \"hinh_anh\": \"string\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}Location/ThemViTri",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"ThemViTri"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ten_vi_tri\": \"Kinh Thành Huế\",\n  \"tinh_thanh\": \"Huế\",\n  \"quoc_gia\": \"Việt Nam\",\n  \"hinh_anh\": \"string\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}Location/CapNhatThongTinViTri/3",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"CapNhatThongTinViTri",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Location/XoaViTri/3",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"XoaViTri",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Image Local",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/nguyenvuongviet/Downloads/cv/IMG_1175.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}Location/UploadHinhAnhViTri?maViTri=1",
+							"host": [
+								"{{domain}}Location"
+							],
+							"path": [
+								"UploadHinhAnhViTri"
+							],
+							"query": [
+								{
+									"key": "maViTri",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Room",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/rooms",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ten_phong\": \"Căn hộ cao cấp Quận 1 - View Bitexco\",\n  \"khach\": 3,\n  \"phong_ngu\": 1,\n  \"giuong\": 2,\n  \"phong_tam\": 1,\n  \"mo_ta\": \"Căn hộ tầng cao, nội thất hiện đại, sát bên phố Tây Bùi Viện\",\n  \"gia_tien\": 1800000,\n  \"may_giat\": true,\n  \"ban_la\": true,\n  \"tivi\": true,\n  \"dieu_hoa\": true,\n  \"wifi\": true,\n  \"bep\": true,\n  \"do_xe\": true,\n  \"ho_boi\": false,\n  \"ban_ui\": true,\n  \"hinh_anh\": \"https://example.com/bitexco-apartment.jpg\",\n  \"vi_tri_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}api/rooms",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Location ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/rooms/by-location/1",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms",
+								"by-location",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pagination",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/rooms/pagination?page=1&pageSize=2&search=",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms",
+								"pagination"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "2"
+								},
+								{
+									"key": "search",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/rooms/search?keyword=can",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms",
+								"search"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "can"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get One",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/rooms/1",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ten_phong\": \"Căn hộ Quận Ba Đình\",\n  \"khach\": 4,\n  \"phong_ngu\": 2,\n  \"giuong\": 2,\n  \"phong_tam\": 1,\n  \"mo_ta\": \"Gần công viên, yên tĩnh\",\n  \"gia_tien\": 500000,\n  \"may_giat\": true,\n  \"ban_la\": true,\n  \"tivi\": false,\n  \"dieu_hoa\": true,\n  \"wifi\": true,\n  \"bep\": false,\n  \"do_xe\": true,\n  \"ho_boi\": false,\n  \"ban_ui\": false,\n  \"hinh_anh\": \"https://cdn.pixabay.com/photo/1.jpg\",\n  \"vi_tri_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}api/rooms/1",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/rooms/3",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Image Local",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/nguyenvuongviet/Downloads/cv/IMG_1175.jpeg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}api/rooms/1/upload-image",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"rooms",
+								"1",
+								"upload-image"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Booking",
+			"item": [
+				{
+					"name": "Get All",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ma_phong\": 1,\n  \"ngay_den\": \"2025-06-04 00:00:00\",\n  \"ngay_di\": \"2025-06-05 12:00:00\",\n  \"so_luong_khach\": 1,\n  \"ma_nguoi_dat\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}api/bookings",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By User ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings/by-user/1",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"by-user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings/my-history",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"my-history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pagination",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings/pagination?page=1&pageSize=2&search=",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"pagination"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "2"
+								},
+								{
+									"key": "search",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings/search?keyword=Ho",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"search"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "Ho"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get One",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings/1",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ma_phong\": 2,\n  \"ngay_den\": \"2025-06-01 00:00:00\",\n  \"ngay_di\": \"2025-06-01 00:00:00\",\n  \"so_luong_khach\": 2,\n  \"ma_nguoi_dat\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}api/bookings/3",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings/3",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Stats User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}api/bookings/stats/user",
+							"host": [
+								"{{domain}}api"
+							],
+							"path": [
+								"bookings",
+								"stats",
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comment",
+			"item": [
+				{
+					"name": "Get Pagination",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Comment/LayDanhSachBinhLuanPhanTrang?page=1&pageSize=5&keyword=",
+							"host": [
+								"{{domain}}Comment"
+							],
+							"path": [
+								"LayDanhSachBinhLuanPhanTrang"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "5"
+								},
+								{
+									"key": "keyword",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Comment/LayTatCaBinhLuan",
+							"host": [
+								"{{domain}}Comment"
+							],
+							"path": [
+								"LayTatCaBinhLuan"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get By Room ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Comment/LayBinhLuanTheoPhong/1",
+							"host": [
+								"{{domain}}Comment"
+							],
+							"path": [
+								"LayBinhLuanTheoPhong",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Comment/TimKiemBinhLuan?keyword=s",
+							"host": [
+								"{{domain}}Comment"
+							],
+							"path": [
+								"TimKiemBinhLuan"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "s"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ma_phong\": 1,\n  \"noi_dung\": \"Phòng rất đẹp!\",\n  \"sao_binh_luan\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}Comment/ThemBinhLuan",
+							"host": [
+								"{{domain}}Comment"
+							],
+							"path": [
+								"ThemBinhLuan"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"noi_dung\": \"Phòng sạch, đẹp\",\n  \"sao_binh_luan\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}Comment/CapNhatBinhLuan/1",
+							"host": [
+								"{{domain}}Comment"
+							],
+							"path": [
+								"CapNhatBinhLuan",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}Comment/XoaBinhLuan/3",
+							"host": [
+								"{{domain}}Comment"
+							],
+							"path": [
+								"XoaBinhLuan",
+								"3"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
